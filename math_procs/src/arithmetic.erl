@@ -2,10 +2,116 @@
 -export([start_factorializer/0,start_adder/0,start_subtracter/0,start_multiplier/0,start_divider/0,
 		 factorializer/0,adder/0,subtracter/0,multiplier/0,divider/0,
 		 factorial_of/2,add/3,subtract/3,multiply/3,divide/3]).
-
+% -export([start_adder/0, add/3, adder/0]).
 %%
 %% Put your functions, described in the task HTML file here.
 %%
+start_factorializer() -> 
+	spawn(?MODULE,factorializer,[]).
+
+start_adder() -> 
+	spawn(?MODULE,adder,[]). 
+
+start_subtracter() -> 
+	spawn(?MODULE,subtracter,[]).
+
+start_multiplier() ->
+	spawn(?MODULE,multiplier,[]).
+
+start_divider() ->
+	spawn(?MODULE,divider,[]).
+
+factorial_of(Pid, N) -> 
+	Pid ! {self(), N},
+	receive
+		Response -> 
+			Response
+		end.
+
+factorializer() -> 
+	receive
+		{From, N} when (N < 0) -> 
+			From ! {fail, N, is_negative};
+		{From, N} when (not is_integer(N)) -> 
+			From ! {fail, N, is_not_integer};
+		{From, N} -> 
+			From ! lists:foldl(fun(X,Y) -> X*Y end, 1, lists:seq(1, N))
+	end,
+	factorializer().
+
+add(Pid, A, B) -> 
+	Pid ! {self(), A, B},
+	receive
+		Response -> 
+			Response
+		end.
+
+adder()->
+	receive
+		{From,A,B} when (not is_number(A)) ->
+			From ! {fail, A, is_not_number};
+		{From,A,B} when (not is_number(B)) ->
+			From ! {fail, B, is_not_number};
+		{From,A,B} ->
+			From ! A + B
+	end,
+	adder().
+
+subtract(Pid, A, B) ->
+	Pid ! {self(), A, B},
+	receive
+		Response ->
+			Response
+		end.
+
+subtracter()->
+	receive
+		{From,A,B} when (not is_number(A)) ->
+			From ! {fail, A, is_not_number};
+		{From,A,B} when (not is_number(B)) ->
+			From ! {fail, B, is_not_number};
+		{From,A,B} ->
+			From ! A - B
+	end,
+	subtracter().
+
+multiply(Pid, A, B) ->
+	Pid ! {self(), A, B},
+	receive
+		Response ->
+			Response
+		end.
+
+multiplier()->
+	receive
+		{From,A,B} when (not is_number(A)) ->
+			From ! {fail, A, is_not_number};
+		{From,A,B} when (not is_number(B)) ->
+			From ! {fail, B, is_not_number};
+		{From,A,B} ->
+			From ! A * B
+	end,
+	multiplier().
+
+divide(Pid, A, B) ->
+	Pid ! {self(), A, B},
+	receive
+		Response ->
+			Response
+		end.
+
+divider()->
+	receive
+		{From,A,B} when (not is_number(A)) ->
+			From ! {fail, A, is_not_number};
+		{From,A,B} when (not is_number(B)) ->
+			From ! {fail, B, is_not_number};
+		{From,A,B} when (B == 0) ->
+			From ! {fail, B, is_zero};
+		{From,A,B} ->
+			From ! A / B
+	end,
+	divider().
 
 
 -ifdef(EUNIT).
